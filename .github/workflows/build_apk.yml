@@ -1,0 +1,42 @@
+name: Build AI Gaming Copilot APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+
+      - name: Create Flutter Project Structure
+        run: |
+          if [ ! -f "pubspec.yaml" ]; then
+            flutter create --org com.copilot.ai --project-name ai_gaming_copilot .
+          fi
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: AI-Gaming-Copilot-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
